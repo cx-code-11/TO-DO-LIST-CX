@@ -13,6 +13,7 @@ model Client {
   subdomain String   @unique @db.VarChar(63)
   createdAt DateTime @default(now())
   todos     Todo[]
+  users     User[]
 
   @@map("clients")
 }
@@ -25,7 +26,32 @@ model Todo {
   updatedAt DateTime @updatedAt
   clientId  Int
   client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([clientId])
+  @@index([userId])
   @@map("todos")
+}
+
+enum Role {
+  ADMIN
+  MEMBER
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255)
+  name      String?  @db.VarChar(100)
+  role      Role     @default(MEMBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clientId  Int
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  todos     Todo[]
+
+  @@index([clientId])
+  @@map("users")
 }
